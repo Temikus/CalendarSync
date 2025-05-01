@@ -57,6 +57,41 @@ func TestEvent_Sync(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "overwrite with colorID",
+			dest: Event{
+				ICalUID:     "foo",
+				ID:          "bar",
+				Title:       "Dest",
+				StartTime:   time.Now(),
+				EndTime:     time.Now().Add(2 * time.Hour),
+				Metadata: &Metadata{
+					SyncID: "foo",
+				},
+			},
+			source: Event{
+				ICalUID:     "New ID",
+				ID:          "New UUID",
+				Title:       "Source",
+				StartTime:   startTime,
+				EndTime:     endTime,
+				ColorID:     "5",
+				Metadata: &Metadata{
+					SyncID: "foo",
+				},
+			},
+			expectedEvent: Event{
+				ICalUID:     "foo",
+				ID:          "bar",
+				Title:       "Source",
+				StartTime:   startTime,
+				EndTime:     endTime,
+				ColorID:     "5",
+				Metadata: &Metadata{
+					SyncID: "foo",
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -64,6 +99,85 @@ func TestEvent_Sync(t *testing.T) {
 			actual := tt.dest.Overwrite(tt.source)
 
 			assert.Equal(t, tt.expectedEvent, actual)
+		})
+	}
+}
+
+func TestIsSameEvent(t *testing.T) {
+	testTime := time.Now()
+	endTime := testTime.Add(30 * time.Minute)
+
+	check := []struct {
+		name     string
+		a        Event
+		b        Event
+		expected bool
+	}{
+		{
+			name: "identical events",
+			a: Event{
+				Title:     "Title",
+				StartTime: testTime,
+				EndTime:   endTime,
+			},
+			b: Event{
+				Title:     "Title",
+				StartTime: testTime,
+				EndTime:   endTime,
+			},
+			expected: true,
+		},
+		{
+			name: "different title",
+			a: Event{
+				Title:     "A",
+				StartTime: testTime,
+				EndTime:   endTime,
+			},
+			b: Event{
+				Title:     "B",
+				StartTime: testTime,
+				EndTime:   endTime,
+			},
+			expected: false,
+		},
+		{
+			name: "different ColorID",
+			a: Event{
+				Title:     "Title",
+				StartTime: testTime,
+				EndTime:   endTime,
+				ColorID:   "3",
+			},
+			b: Event{
+				Title:     "Title",
+				StartTime: testTime,
+				EndTime:   endTime,
+				ColorID:   "7",
+			},
+			expected: false,
+		},
+		{
+			name: "one event has ColorID, other doesn't",
+			a: Event{
+				Title:     "Title",
+				StartTime: testTime,
+				EndTime:   endTime,
+				ColorID:   "5",
+			},
+			b: Event{
+				Title:     "Title",
+				StartTime: testTime,
+				EndTime:   endTime,
+			},
+			expected: false,
+		},
+	}
+
+	for _, c := range check {
+		t.Run(c.name, func(t *testing.T) {
+			result := IsSameEvent(c.a, c.b)
+			assert.Equal(t, c.expected, result)
 		})
 	}
 }
