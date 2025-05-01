@@ -56,6 +56,11 @@ transformations:
   - name: KeepAttendees
     config:
       UseEmailAsDisplayName: true
+  # Set a specific color for events in Google Calendar (values 1-11)
+  # This is only implemented for Google Calendar sink
+  # - name: SetEventColor
+  #   config:
+  #     ColorID: "7"
 
 # Filters remove events from being synced due to different criteria
 filters:

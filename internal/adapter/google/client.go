@@ -114,7 +114,7 @@ func (g *GCalClient) CreateEvent(ctx context.Context, event models.Event) error 
 
 	call, err := retry(ctx, func() (*calendar.Event, error) {
 		g.RateLimiter.Take()
-		return g.Client.Events.Insert(g.CalendarId, &calendar.Event{
+		googleEvent := &calendar.Event{
 			Summary:            event.Title,
 			Description:        event.Description,
 			Location:           event.Location,
@@ -123,7 +123,13 @@ func (g *GCalClient) CreateEvent(ctx context.Context, event models.Event) error 
 			ExtendedProperties: extProperties,
 			Attendees:          calendarAttendees,
 			Reminders:          &calendarReminders,
-		}).Context(ctx).SendUpdates("none").Do()
+		}
+		
+		if event.ColorID != "" {
+			googleEvent.ColorId = event.ColorID
+		}
+		
+		return g.Client.Events.Insert(g.CalendarId, googleEvent).Context(ctx).SendUpdates("none").Do()
 	})
 	if err != nil {
 		return err
@@ -167,7 +173,7 @@ func (g *GCalClient) UpdateEvent(ctx context.Context, event models.Event) error 
 
 	_, err := retry(ctx, func() (*calendar.Event, error) {
 		g.RateLimiter.Take()
-		return g.Client.Events.Update(g.CalendarId, event.ID, &calendar.Event{
+		googleEvent := &calendar.Event{
 			Summary:            event.Title,
 			Description:        event.Description,
 			Location:           event.Location,
@@ -176,7 +182,13 @@ func (g *GCalClient) UpdateEvent(ctx context.Context, event models.Event) error 
 			ExtendedProperties: extProperties,
 			Attendees:          calendarAttendees,
 			Reminders:          calendarReminders,
-		}).Context(ctx).SendUpdates("none").Do()
+		}
+		
+		if event.ColorID != "" {
+			googleEvent.ColorId = event.ColorID
+		}
+		
+		return g.Client.Events.Update(g.CalendarId, event.ID, googleEvent).Context(ctx).SendUpdates("none").Do()
 	})
 	if isNotFound(err) {
 		return errors.New("already deleted")
