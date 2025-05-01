@@ -28,6 +28,7 @@ type Event struct {
 	Reminders   Reminders
 	MeetingLink string
 	Accepted    bool
+	ColorID     string // Defines the color of the event. Currently only used in Google Calendar.
 }
 
 type Reminders []Reminder
@@ -113,6 +114,7 @@ func (e *Event) Overwrite(source Event) Event {
 	e.Location = source.Location
 	e.Reminders = source.Reminders
 	e.MeetingLink = source.MeetingLink
+	e.ColorID = source.ColorID
 
 	return *e
 }
@@ -150,6 +152,11 @@ func IsSameEvent(a, b Event) bool {
 
 	if a.Location != b.Location {
 		log.Debugf("Location of Source Event %s at %s changed", a.Title, a.StartTime)
+		return false
+	}
+	
+	if a.ColorID != b.ColorID {
+		log.Debugf("ColorID of Source Event %s at %s changed", a.Title, a.StartTime)
 		return false
 	}
 
