@@ -33,6 +33,7 @@ var (
 	transformerConfigMapping = map[string]Transformer{
 		"ReplaceTitle":    &transformation.ReplaceTitle{NewTitle: "[CalendarSync Event]"},
 		"PrefixTitle":     &transformation.PrefixTitle{Prefix: ""},
+		"SetEventColor":   &transformation.SetEventColor{ColorID: ""},
 		"KeepTitle":       &transformation.KeepTitle{},
 		"KeepMeetingLink": &transformation.KeepMeetingLink{},
 		"KeepDescription": &transformation.KeepDescription{},
@@ -50,6 +51,7 @@ var (
 		"KeepDescription",
 		"KeepMeetingLink",
 		"KeepTitle",
+		"SetEventColor",
 		"PrefixTitle",
 		"ReplaceTitle",
 	}
